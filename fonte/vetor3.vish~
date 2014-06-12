@@ -1,15 +1,14 @@
 dim numeros[10],x
 x=0
-print "Digite 10 numeros" &\n
 while x<10
 scan numeros[x]
 x=x+1
 wend
 
-print "Os numeros digitados foram:"&\n
+print "Os numeros digitados foram:
 x=0
 while x<10
-print &numeros[x] &" "
+print &numeros[x] " "
 x=x+1
 wend
 

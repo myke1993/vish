@@ -1,0 +1,8 @@
+dim x
+print "Qual sua idade?"&\n
+scan x
+if x<18 then
+print " MENOR de 18, proibida a vanda de bebida alcoolica"&\n
+else
+print " maior de idade, bebida liberada"&\n
+end if

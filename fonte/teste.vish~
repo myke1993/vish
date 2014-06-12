@@ -9,7 +9,7 @@ wend
 print "Os numeros digitados foram:"&\n
 x=0
 while x<10
-print &numeros[x] &" "
+print &numeros[x] " "
 x=x+1
 wend
 

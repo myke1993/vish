@@ -534,7 +534,7 @@ class Interpretador {
 			a++;				
 		}
 		if(tmp2.charAt(0)>='0'&&tmp2.charAt(0)<='9'){
-			tmp2=tmp1+"["+Integer.parseInt(tmp2)+"]";
+			tmp2=tmp1+"["+Integer.parseInt(tmp2))+"]";
 			x=x.replace(x,tmp2);
 			return x;
 		}
