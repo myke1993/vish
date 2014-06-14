@@ -1,16 +1,28 @@
-dim numeros[10],x
 x=0
-print "Digite 10 numeros" &\n
-while x<10
-scan numeros[x]
+dim y,z
+y=0
+
+funcion errado
 x=x+1
+print &"errou " &x &" vezes essa pergunta" &\n
+fend
+
+funcion certo
+x=x+1
+print &"acertou na " &x &" tentativa" &\n
+fend
+
+while y==0
+scan z
+if z==1950.0 then
+
+begin certo
+
+y = y + 1
+else
+begin errado
+
+end if
+
 wend
 
-print "Os numeros digitados foram:"&\n
-x=0
-while x<10
-print &numeros[x] " "
-x=x+1
-wend
-
-print &\n

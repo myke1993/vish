@@ -12,6 +12,7 @@ class Interpretador {
 	private String linhas[];
 	private Variavel vars[];
 	private Ula ula;
+	private Funcion funcao[]= new Funcion[10];//máximo 10 funções por programa
 
 	/***
 	* Construtor que instancia a ULA para auxiliar nas operações
@@ -32,7 +33,7 @@ class Interpretador {
 	*
 	* @return 0 se executou corretamente ou o número da linha se houver algum problema na interpretação.
 	*/
-	public int interpreta(String[] l, Variavel[] variaveis) {
+	public int interpreta(String[] l, Variavel[] variaveis,Funcion[] funcion) {
         int token,op,j,k,n,ret;
         
         RetornoOperacao retorno;
@@ -43,6 +44,7 @@ class Interpretador {
 
         this.vars = variaveis;
         this.linhas = l;
+        this.funcao = funcion;
 
         for(int i=0;i<this.linhas.length&&this.vars[Tokens.nBreakFlag].valor==0.0;i++) {
             if(this.linhas[i]!=null && this.linhas[i].trim().length()>0 && !this.linhas[i].trim().substring(0,1).equals("'")){
@@ -126,7 +128,7 @@ class Interpretador {
 										arr[j-i-1]=this.linhas[j];
 								}
 
-								ret=escopo.interpreta(arr,this.vars); // manda executar o escopo
+								ret=escopo.interpreta(arr,this.vars,this.funcao); // manda executar o escopo
 								if(ret!=0) return ret+i+1; //se houve um erro na execução do escopo
 								
 								i=endL; // Continua a execução do escopo atual a partir da linha do 'end if'
@@ -148,8 +150,8 @@ class Interpretador {
 					case 1:
 						// str = linha sem o token do incio
 						// dim = vetor de variáveis a serem declaradas.
-						if(str.contains("[")){
-							str=converteVetor(str);
+						if(str.contains("[")){ //verifica se existe um vetor na declaração
+							str=converteVetor(str); // se encontrar abre o vetor em variaveis simples
 						}
 						dim = str.split(",");
 						for(k=0;k<dim.length;k++){
@@ -179,7 +181,6 @@ class Interpretador {
 								// for primeira linha do escopo até o final do arquivo
 								if(checkToken(Tokens.mainTokens,this.linhas[k])==2) n++; // se encontrar mais um if, ignora o próximo end if
 								if(this.linhas[k].trim().toLowerCase().equals(Tokens.condTokens[5])) n--; // se encontrar um end if, diminui o contador
-
 								if(n==0) break; // n == 0 significa que encontrou o end if do escopo, sai fora do for.
 							}
 
@@ -207,7 +208,7 @@ class Interpretador {
 								//pula o while
 								i=k;
 							}
-							ret = escopo.interpreta(arr,this.vars); // manda executar o escopo
+							ret = escopo.interpreta(arr,this.vars,this.funcao); // manda executar o escopo
 							if(this.vars[Tokens.nBreakFlag].valor==1){
 								this.vars[Tokens.nBreakFlag].valor = 0;
 								i=k;
@@ -230,8 +231,8 @@ class Interpretador {
 
 						// processa e imprime todas as partes
 						for(k=0;k<arr.length;k++){
-							if(arr[k].contains("[")){
-								arr[k]=trocaIndiceVetor(arr[k]);
+							if(arr[k].contains("[")){ //verifica se há uma variavel do vetor com uma variavel dentro dos colchetes
+								arr[k]=trocaIndiceVetor(arr[k]); //substitui a variavel pelo valor inteiro dela
 							}
 							if(arr[k].trim().length()>0){
 								if(arr[k].trim().substring(0,1).equals("\"")){
@@ -279,7 +280,38 @@ class Interpretador {
 					case 5:
 						this.vars[Tokens.nBreakFlag].valor = 1.0;
 						break;
+						
+					//-------------------------------------------------------------------------------------------------------------------//
+					//-------------------------------------DECLARA A FUNÇÃO SEM PARAMETRO------------------------------------------------\\
+					//-------------------------------------------------------------------------------------------------------------------//	
 
+					case 6:
+						int x,y;
+						int r=0;
+						y=nextEmptyFuncion();
+						funcao[y]= new Funcion(str);
+						String tmp[] = new String[100];
+						for(x=i+1;!(this.linhas[x].equals(Tokens.condTokens[6]));x++){
+							tmp[r]=this.linhas[x];
+							r++;
+							i++;
+						}
+						funcao[y].fun=tmp;
+						i++;
+						break;
+						
+					//-------------------------------------------------------------------------------------------------------------------//
+					//-------------------------------------EXECUTA A FUNÇÃO SEM PARAMETRO------------------------------------------------\\
+					//-------------------------------------------------------------------------------------------------------------------//	
+					
+					case 7:
+						Interpretador ff = new Interpretador();
+						//Variavel[] nova = new Variavel[1000];
+						int xy;
+						for(xy=0;!(funcao[xy].name.equals(str.trim()));xy++);
+						ff.interpreta(funcao[xy].fun,this.vars,this.funcao);
+						i++;
+						break;
 					//--------------------------------------------------------------------------------------------------------------------//
 					//-------------------------------------- OPERAÇÕES NÃO IDENTIFICADAS COMO TOKENS--------------------------------------\\
 					//-------------------------------- atribuição de valor à variáveis declaradas, no caso--------------------------------//
@@ -332,10 +364,10 @@ class Interpretador {
 	*/
 	public Variavel getVariable(String name){
 		int i=0;
-		if(name.contains("[")){
+		if(name.contains("[")){ // verifica se dentro do indice do vetor há uma outra variável
 			name=trocaIndiceVetor(name);
 		}
-		String permitidos = "abcdefghijklmnopqrstuvxyz_[]";
+		String permitidos = "abcdefghijklmnopqrstuvxyz_";
 		if(permitidos.contains(name.trim().substring(0,1).toLowerCase())){
 			while(this.vars[i]!=null){
 				if(this.vars[i].igual(name.trim())){
@@ -360,6 +392,15 @@ class Interpretador {
 		while(this.vars[i]!=null) i++;
 		return i;
 	}
+	/***
+	* Busca a proxima posição para a proxima função
+	*
+	***/
+	private int nextEmptyFuncion(){
+		int n=0;
+		while(this.funcao[n]!=null) n++;
+		return n;
+	}
 
 
 	/***
@@ -372,7 +413,7 @@ class Interpretador {
 	* @return se a operação foi executada com sucesso ou não
 	*/
 	private boolean atribuicao(String varName, String operacao){
-		if(varName.contains("[")){
+		if(varName.contains("[")){ // substitui variaveis de dentro do vetor pelo numero inteiro correspondente
 			varName=trocaIndiceVetor(varName);
 		}
 		String arr[];
@@ -481,6 +522,9 @@ class Interpretador {
 		}
 		return this.vars[n];
 	}
+	/***
+	* Recebe a string que contem a declaração do vetor e quebra o vetor em variáveis simples
+	**/
 	private String converteVetor(String x){
 		String vet[],tmp1,tmp2;
 		int num,k;
@@ -500,17 +544,20 @@ class Interpretador {
 						tmp2+=vet[k].charAt(a);
 						a++;				
 					}
-					num=Integer.parseInt(tmp2);
+					num=Integer.parseInt(tmp2);//recebe o valor da string em inteiro
 					tmp2=tmp1+"[0]";
 					for(a=1;a<num;a++){
 						tmp2+=","+tmp1+"["+a+"]";
 					}
-					vet[k]=vet[k].replace(vet[k],tmp2);
+					vet[k]=vet[k].replace(vet[k],tmp2); // cria todas as variaveis do vetor
 				}
-				x+=vet[k]+",";
+				x+=vet[k]+",";//concatena tudo na variavel que entrou, refazendo a string com as adaptações
 			}
 	return x;
 	}
+	/***
+	* Converte a variável dentro do índice do vetor, mesmo que essa variavel seja outro indice de vetor
+	*/
 	private String trocaIndiceVetor(String x){
 		int a=0;
 		int m=0;
@@ -525,7 +572,7 @@ class Interpretador {
 		a++;
 		while(x.charAt(a)!=']'||m!=0){
 			if(x.charAt(a)=='['){
-				m++;
+				m++; //conta os colchetes pra cada colchete aberto fechar com seu respectivo par
 			}
 			if(x.charAt(a)==']'){
 				m--;
@@ -533,7 +580,7 @@ class Interpretador {
 			tmp2+=x.charAt(a);
 			a++;				
 		}
-		if(tmp2.charAt(0)>='0'&&tmp2.charAt(0)<='9'){
+		if(tmp2.charAt(0)>='0'&&tmp2.charAt(0)<='9'){ //verifica se dentro existe  um numero ou uma variável
 			tmp2=tmp1+"["+Integer.parseInt(tmp2)+"]";
 			x=x.replace(x,tmp2);
 			return x;
