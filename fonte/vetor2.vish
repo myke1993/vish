@@ -1,8 +1,0 @@
-dim enfileirado[5], a[5],b[5],c[5],d[5],e[5]
-e[2]= 2
-d[e[2]]=3
-c[d[e[2]]]=1
-b[c[d[e[2]]]]=5
-a[b[c[d[e[2]]]]]=0
-enfileirados[0]=100
-print &enfileirados[a[b[c[d[e[2]]]]]] &\n
