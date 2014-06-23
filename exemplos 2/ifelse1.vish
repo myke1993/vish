@@ -1,0 +1,15 @@
+dim x=0
+while x<10
+
+if x<3 then
+print &x& " eh menor que 3"&\n
+elseif x<5 then
+print &x& " eh menor que 5 e maior ou igual que 3"&\n
+elseif x<7 then
+print &x& " eh menor que 7 e maior ou igual que 5"&\n
+else
+print &x& " eh menor que 10 e maior ou igual que 7"&\n
+end if
+
+x=x+1
+wend

@@ -31,6 +31,8 @@ class Interpretador {
 	*					condicional que instanciará um novo interpretador e chamará este método para
 	*					executar o escopo.
 	*
+	*@param funcion: vetor de funcões que serve para quando exestir a execução de uma função dentro de um laço ou condicional
+	*
 	* @return 0 se executou corretamente ou o número da linha se houver algum problema na interpretação.
 	*/
 	public int interpreta(String[] l, Variavel[] variaveis,Funcion[] funcion) {

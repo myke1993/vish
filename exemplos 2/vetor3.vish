@@ -1,0 +1,8 @@
+dim soma[5]
+soma[0]=5
+soma[1]=10
+soma[2]=soma[0]+soma[1]
+soma[3]=soma[2]*soma[2]
+soma[4]=soma[3]
+
+print &soma[4]&\n

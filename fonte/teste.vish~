@@ -1,4 +1,4 @@
-x=0
+x=8
 dim y,z
 y=0
 
@@ -13,6 +13,7 @@ print &"acertou na " &x &" tentativa" &\n
 fend
 
 while y==0
+print &"quando foi a primeira copa do mundo no Brasil?" &\n
 scan z
 if z==1950.0 then
 

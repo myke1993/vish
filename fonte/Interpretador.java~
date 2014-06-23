@@ -31,6 +31,8 @@ class Interpretador {
 	*					condicional que instanciará um novo interpretador e chamará este método para
 	*					executar o escopo.
 	*
+	*@param funcion: vetor de funcões que serve para quando exestir a execução de uma função dentro de um laço ou condicional
+	*
 	* @return 0 se executou corretamente ou o número da linha se houver algum problema na interpretação.
 	*/
 	public int interpreta(String[] l, Variavel[] variaveis,Funcion[] funcion) {
@@ -208,7 +210,7 @@ class Interpretador {
 								//pula o while
 								i=k;
 							}
-							ret = escopo.interpreta(arr,this.vars,this.funcion); // manda executar o escopo
+							ret = escopo.interpreta(arr,this.vars,this.funcao); // manda executar o escopo
 							if(this.vars[Tokens.nBreakFlag].valor==1){
 								this.vars[Tokens.nBreakFlag].valor = 0;
 								i=k;
@@ -306,10 +308,10 @@ class Interpretador {
 					
 					case 7:
 						Interpretador ff = new Interpretador();
-						//Variavel[] nova = new Variavel[1000];
+						Variavel[] nova = new Variavel[1000];
 						int xy;
 						for(xy=0;!(funcao[xy].name.equals(str.trim()));xy++);
-						ff.interpreta(funcao[xy].fun,this.vars,this.funcao);
+						ff.interpreta(funcao[xy].fun,this.nova,this.funcao);
 						i++;
 						break;
 					//--------------------------------------------------------------------------------------------------------------------//
